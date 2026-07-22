@@ -98,7 +98,22 @@ Pronto — o bot está no ar.
 | 00h às 07h    | bot pausado, nada é verificado |
 
 - Das 0h às 7h o bot não faz nenhuma requisição. Como ele sempre olha "ontem + hoje", os jogos 0x0 da madrugada ainda são notificados quando ele volta a rodar às 7h — só chegam um pouco mais tarde.
+- Quando encontra um jogo 0x0, o bot faz uma consulta extra para descobrir o próximo jogo da mesma competição e inclui isso na mensagem. Exemplo:
+  ```
+  ⚽ Terminou 0 x 0!
+  Flamengo x Palmeiras
+  Competição: Serie A
+
+  Próximo jogo da competição:
+  Vasco x Botafogo — 22/07 às 20h00
+  ```
 - Jogos já notificados ficam salvos em `notificados.json`, para não repetir o aviso.
+- Todo próximo jogo identificado (data, horário, liga e times) é salvo em `proximos_jogos.json`, formando um histórico.
+- **Todo dia às 7h** (uma única vez, quando o bot sai do horário de pausa), ele gera e manda no Telegram uma lista com todos os jogos salvos nesse histórico que acontecem naquele dia, ordenados por horário. O controle de "já enviei hoje" fica em `ultima_lista_enviada.json`.
+
+> **Sobre a cota de requisições:** a busca pelo próximo jogo só acontece quando um 0x0 é encontrado (não em toda verificação), então usa só 1 requisição extra por jogo notificado — o impacto no limite diário é pequeno.
+
+> **Sobre "lista pública":** como o bot só tem integração com o Telegram, a lista das 7h é enviada no mesmo chat/canal configurado em `TELEGRAM_CHAT_ID`. Se você quiser algo acessível fora do Telegram (uma página web, por exemplo), é preciso uma estrutura adicional — me avise se for esse o caso.
 
 ## Sobre os limites de requisições
 
