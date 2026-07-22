@@ -2,23 +2,13 @@ import requests
 import time
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 # ===================== CONFIGURAÇÕES EDITÁVEIS =====================
 # Adicione ou remova os IDs das ligas/competições que quer acompanhar.
 # IDs de referência (API-Football): veja a tabela no README.md
 # Lista completa e atualizada: https://dashboard.api-football.com/soccer/ids/leagues
-
-#1.4 Como editar algo depois (ex: mudar a lista de ligas)
-#Abra o repositório no GitHub e clique no arquivo main.py.
-#Clique no ícone de lápis (Edit this file), no canto superior direito do arquivo.
-#Faça a alteração direto no navegador.
-#Role para baixo e clique em Commit changes.
-#O Railway vai detectar essa mudança e fazer o redeploy automaticamente (veja Parte 2.6).
-
-
-
 LIGAS = [
     71,   # Brasileirão Série A
     39,   # Premier League (Inglaterra)
@@ -94,7 +84,7 @@ def enviar_telegram(mensagem):
 
 def buscar_jogos_finalizados():
     headers = {"x-apisports-key": obter_chave_api()}
-    hoje = datetime.utcnow().date()
+    hoje = datetime.now(timezone.utc).date()
     ontem = hoje - timedelta(days=1)
 
     jogos = []
