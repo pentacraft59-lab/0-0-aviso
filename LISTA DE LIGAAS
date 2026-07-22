@@ -1,0 +1,50 @@
+import requests
+import json
+import os
+
+# Cole uma das suas chaves da API-Football aqui, ou defina a variável de
+# ambiente API_FOOTBALL_KEY antes de rodar o script.
+API_KEY = os.environ.get("API_FOOTBALL_KEY") or input("Cole sua API Key da API-Football: ").strip()
+
+HEADERS = {"x-apisports-key": API_KEY}
+URL = "https://v3.football.api-sports.io/leagues"
+
+
+def main():
+    print("Buscando lista de ligas na API-Football...")
+    resposta = requests.get(URL, headers=HEADERS, timeout=30)
+    resposta.raise_for_status()
+    dados = resposta.json()
+
+    # 1) Salva a resposta completa da API, sem tratamento (fica tudo disponível
+    #    caso você precise de algum campo extra depois).
+    with open("ligas_disponiveis.json", "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+    # 2) Salva uma versão simplificada e mais fácil de ler/filtrar manualmente,
+    #    só com id, nome, tipo (league/cup) e país.
+    ligas_simplificadas = []
+    for item in dados.get("response", []):
+        liga = item["league"]
+        pais = item["country"]
+        ligas_simplificadas.append({
+            "id": liga["id"],
+            "nome": liga["name"],
+            "tipo": liga["type"],
+            "pais": pais["name"],
+        })
+
+    # Ordena por país e depois por nome, pra facilitar a leitura
+    ligas_simplificadas.sort(key=lambda l: (l["pais"], l["nome"]))
+
+    with open("ligas_simplificadas.json", "w", encoding="utf-8") as f:
+        json.dump(ligas_simplificadas, f, ensure_ascii=False, indent=2)
+
+    print(f"Pronto! {len(ligas_simplificadas)} ligas encontradas.")
+    print("Arquivos gerados:")
+    print("  - ligas_disponiveis.json    (resposta completa da API)")
+    print("  - ligas_simplificadas.json  (id, nome, tipo, país — mais fácil de filtrar)")
+
+
+if __name__ == "__main__":
+    main()
